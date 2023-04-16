@@ -40,18 +40,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Getting Weather Data from Weather API based on User IP or City
             const getWeather = async (cityOrIp) => {
-                const response2 = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=b8605740c0e34753bc7204147230102&q=${cityOrIp}&days=6`);
+                const response2 = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${cityOrIp}&days=6`);
                 const { location, current, forecast } = await response2.json();
                 return {location: location, current: current, forecast: forecast}
             }
 
             const defaultResult = await getWeather(ip);
 
-            // For testing purposes - reviewing getWeather API data for a specific city
+            //// For testing purposes - reviewing getWeather API data for a specific city
             // const myResult = await getWeather('wroclaw');
             // console.log(myResult['location'])
 
-            // For Testing purposes - reviewing getWeather API data - forecast
+            //// For Testing purposes - reviewing getWeather API data - forecast
             // console.log(forecast);
 
 
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Structured Forecast data from Weather API based on User IP or City
             const get5DayForecast = async (cityResult) => {
                 const forecast5day = [];
-                forecast['forecastday'].forEach( (forecastDay) => {
+                cityResult.forecast['forecastday'].forEach( (forecastDay) => {
                     // console.log(forecastDay['day']['condition'].text)
                     forecast5day.push({
                         date: forecastDay['date'],
@@ -180,18 +180,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 let input = searchFrom.querySelector('input');
                 let inputValue = (input.value).toLowerCase();
-                console.log(inputValue);
                 searchModule.setAttribute('hidden', null);
-                // const getNewCityData = async () => {
+
+                // Fetching Weather Data based on input
                 const newCityResult = await getWeather(inputValue);
                 const newCityCurrentWeather = await getCurrentWeather(newCityResult);
-                console.log(newCityCurrentWeather);
                 const newCityForecast = await get5DayForecast(newCityResult);
-                const newModule = document.querySelector('.module__weather').cloneNode(true);
+
+
+                // For testing purposes - reviewing inputValue & getWeather API data for new City
+                // console.log(inputValue);
+                // console.log(newCityCurrentWeather);
+                // console.log(newCityForecast);
                 // console.log(newModule);
+
+                // Creating new Weather Module for city from input
+                const newModule = document.querySelector('.module__weather').cloneNode(true);
+
+                let newCityTemp = newModule.getElementsByClassName('temperature__value');
+                let newCityIcon = newModule.querySelector('.weather__icon').querySelector('img')
+                let newCityName = newModule.querySelector('.city__name');
+                let newCityPressure = newModule.querySelector('.weather__details').querySelector('.pressure__value');
+                let newCityHumidity = newModule.querySelector('.weather__details').querySelector('.humidity__value');
+                let newCityWindSpeed = newModule.querySelector('.weather__details').querySelector('.wind-speed__value');
+
+                // Filling New Weather Module with Current Weather data
+                newCityTemp[0].innerHTML = newCityCurrentWeather['temp'];
+                let newIcon = newCityCurrentWeather['icon'];
+                newCityIcon.src = `https://${newIcon}`;
+                newCityName.innerHTML = newCityCurrentWeather['city'];
+                newCityPressure.innerText = `${newCityCurrentWeather['pressure']} hPa`;
+                newCityHumidity.innerText = `${newCityCurrentWeather['humidity']}%`;
+                newCityWindSpeed.innerText = `${newCityCurrentWeather['wind']} m/s`;
+
+                //TODO Filling New Weather Module with forecast data (newCityForecast)
+
+                // Adding New Weather Module to HTML
                 weatherModule.parentNode.insertBefore(newModule, weatherModule.nextSibling);
-                // }
-                // getNewCityData();
+
+                // Clearing inputValue after adding new City
+                input.value = '';
+
             })
 
         } catch (err) {
