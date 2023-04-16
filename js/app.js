@@ -1,9 +1,18 @@
 
 document.addEventListener('DOMContentLoaded', (e) => {
-    const weatherModule = document.querySelector('.module__weather');
+
+    // Main Nodes
+    const section = document.querySelector('#app')
+    const templateWeatherModule = document.querySelector('.module__weather');
+
+    // Cloning template module
+    const weatherModule = templateWeatherModule.cloneNode(true)
+    section.appendChild(weatherModule);
+
+    // Secondary Nodes
     const addCityBtn = document.querySelector('#add-city');
     const searchModule = document.querySelector('.module__form');
-    // weatherModule.removeAttribute('hidden'); // jak usunąć atrybut hidden?
+    // templateWeatherModule.removeAttribute('hidden'); // jak usunąć atrybut hidden?
     const currentWeatherTemp = document.getElementsByClassName('temperature__value');
     const currentWeatherIcon = document.querySelector('.weather__icon').querySelector('img')
     const currentWeatherCity = document.querySelector('.city__name')
@@ -11,10 +20,11 @@ document.addEventListener('DOMContentLoaded', (e) => {
     const currentWeatherHumidity = document.querySelector('.weather__details').querySelector('.humidity__value');
     const currentWeatherWindSpeed = document.querySelector('.weather__details').querySelector('.wind-speed__value');
     const currentForecast = document.querySelector('.weather__forecast').querySelectorAll('li');
-    const closeModuleBtn = weatherModule.querySelector('.btn--close');
+    const allWeatherModules = document.querySelectorAll('.module__weather')
     const closeSearchBtn = searchModule.querySelector('.btn--close');
-    const closeBtns = document.querySelectorAll('.btn--close');
+    // const closeBtns = document.querySelectorAll('.btn--close');
     const searchFrom = document.querySelector('.find-city');
+
 
     // Get User IP  & Weather Data
     const getIpAsync2 = async () => {
@@ -25,7 +35,8 @@ document.addEventListener('DOMContentLoaded', (e) => {
             const ip = await response.text();
 
             // Get Weather data with User IP
-            const response2 = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=b8605740c0e34753bc7204147230102&q=${ip}&days=6`);
+            const apiKey = '8e424e27a8804b3eaf694904231604'
+            const response2 = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${ip}&days=6`);
             const { location, current, forecast } = await response2.json();
 
             // Getting Weather Data from Weather API based on User IP or City
@@ -37,15 +48,14 @@ document.addEventListener('DOMContentLoaded', (e) => {
 
             const defaultResult = await getWeather(ip);
 
-
             // some test
             // const myResult = await getWeather('wroclaw');
             // console.log(myResult['location'])
 
 
             // Structured Current Weather data from Weather API based on User IP or City
-            const getCurrentWeather = async (cityResult) => {
-                let currentWeather = {
+            const getCurrentWeather = async () => {
+                return {
                     'city': location['name'],
                     'condition': current['condition'].text,
                     'icon': current['condition']['icon'],
@@ -53,22 +63,21 @@ document.addEventListener('DOMContentLoaded', (e) => {
                     'humidity': current['humidity'],
                     'pressure': current['pressure_mb'],
                     'wind': current['wind_kph'],
-                }
-                return currentWeather;
+                };
             }
 
             let currentWeather = await getCurrentWeather(defaultResult);
 
             // Structured Forecast data from Weather API based on User IP or City
-            const get5DayForecast = async (cityResult) => {
+            const get5DayForecast = async () => {
                 const forecast5day = [];
-                forecast['forecastday'].forEach( (forcastDay, i) => {
+                forecast['forecastday'].forEach( (forecastDay, i) => {
                     // console.log(forcastDay['day']['condition'].text)
                     forecast5day.push({
-                        date: forcastDay['date'],
-                        temp: forcastDay['day']['avgtemp_c'],
-                        condition: forcastDay['day']['condition'].text,
-                        icon: forcastDay['day']['condition']['icon']
+                        date: forecastDay['date'],
+                        temp: forecastDay['day']['avgtemp_c'],
+                        condition: forecastDay['day']['condition'].text,
+                        icon: forecastDay['day']['condition']['icon']
                     });
                 });
                 return forecast5day;
@@ -100,7 +109,6 @@ document.addEventListener('DOMContentLoaded', (e) => {
                 return conditionsIcon['currCondition'];
 
             }
-
             // Not using currently
             // Simplified structured data for choosing weather icon based on Weather conditions
             const findIcon = {
@@ -120,11 +128,10 @@ document.addEventListener('DOMContentLoaded', (e) => {
                 Tornado: 'tornado.svg',
                 Wind: 'wind.svg'
             }
-
             // console.log(forecast);
 
-            // Structured data 5-day forecast based on User IP
 
+            // Structured data 5-day forecast based on User IP
 
             // Filling Weather Card with currentWeather
             currentWeatherTemp[0].innerHTML = currentWeather['temp'];
@@ -137,9 +144,10 @@ document.addEventListener('DOMContentLoaded', (e) => {
             currentWeatherWindSpeed.innerText = `${currentWeather['wind']} m/s`;
 
             // Filling Weather Card with 5-day forecast from forecast5day
+            // If 3-day forecast instead of 5 is showing that means paid Weather API ended and switched to free plan
             currentForecast.forEach((li, i) => {
                 let day = li.querySelector('.day');
-                day.innerHTML = forecast5day[i].date;   // 5 Day forecast is available in paid Weather API plan
+                day.innerHTML = forecast5day[i].date;
                 let img = li.querySelector('img');
                 let icon = forecast5day[i].icon;
                 img.src = `http://${icon}`; // na module2
@@ -152,10 +160,13 @@ document.addEventListener('DOMContentLoaded', (e) => {
             // console.log(newModule);
             // weatherModule.parentNode.insertBefore(newModule, weatherModule.nextSibling);
 
-            // Module Management - Closing Weather Module
-            closeModuleBtn.addEventListener('click', () => {
-                weatherModule.remove();
-            });
+            // Module Management - Closing Weather Modules
+            allWeatherModules.forEach((weatherModule) => {
+                const closeModuleBtn = weatherModule.querySelector('.btn--close');
+                closeModuleBtn.addEventListener('click', () => {
+                    weatherModule.remove();
+                })
+            })
 
             // Module Management - Opening Search Module
             addCityBtn.addEventListener('click', () => {
@@ -188,13 +199,14 @@ document.addEventListener('DOMContentLoaded', (e) => {
 
             // Not using this
             // How to get to current button with 'this'?
-            closeBtns.forEach((btn) => {
-                btn.addEventListener('click', (e) => {
-                    console.log('close');
-                    console.log(btn);
-                    console.log(this);
-                });
-            })
+            // closeBtns.forEach((btn) => {
+            //     console.log(closeBtns);
+            //     btn.addEventListener('click', (e) => {
+            //         console.log('close');
+            //         console.log(btn);
+            //         console.log(this);
+            //     });
+            // })
         } catch (err) {
             console.log(err)
         }
