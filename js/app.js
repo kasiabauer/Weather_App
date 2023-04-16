@@ -1,5 +1,5 @@
 
-document.addEventListener('DOMContentLoaded', (e) => {
+document.addEventListener('DOMContentLoaded', () => {
 
     // Main Nodes
     const section = document.querySelector('#app')
@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', (e) => {
     const currentForecast = document.querySelector('.weather__forecast').querySelectorAll('li');
     const allWeatherModules = document.querySelectorAll('.module__weather')
     const closeSearchBtn = searchModule.querySelector('.btn--close');
-    // const closeBtns = document.querySelectorAll('.btn--close');
     const searchFrom = document.querySelector('.find-city');
 
 
@@ -48,9 +47,12 @@ document.addEventListener('DOMContentLoaded', (e) => {
 
             const defaultResult = await getWeather(ip);
 
-            // some test
+            // For testing purposes - reviewing getWeather API data for a specific city
             // const myResult = await getWeather('wroclaw');
             // console.log(myResult['location'])
+
+            // For Testing purposes - reviewing getWeather API data - forecast
+            // console.log(forecast);
 
 
             // Structured Current Weather data from Weather API based on User IP or City
@@ -71,8 +73,8 @@ document.addEventListener('DOMContentLoaded', (e) => {
             // Structured Forecast data from Weather API based on User IP or City
             const get5DayForecast = async () => {
                 const forecast5day = [];
-                forecast['forecastday'].forEach( (forecastDay, i) => {
-                    // console.log(forcastDay['day']['condition'].text)
+                forecast['forecastday'].forEach( (forecastDay) => {
+                    // console.log(forecastDay['day']['condition'].text)
                     forecast5day.push({
                         date: forecastDay['date'],
                         temp: forecastDay['day']['avgtemp_c'],
@@ -87,49 +89,48 @@ document.addEventListener('DOMContentLoaded', (e) => {
 
 
 
+
+            // TODO: Function for choosing weather icon based on Weather conditions
             // Now working properly
-            // Function for choosing weather icon based on Weather conditions
-            const findIconFunc = (currCondition) => {  // dlaczego funkcje nie działają?
-                const conditionsIcon = {
-                    Sunny: 'clear-day.svg',
-                    Clear: 'clear-night.svg',
-                    Cloudy: 'cloudy.svg',
-                    Fog: 'fog.svg',
-                    Hail: 'hail.svg',
-                    PartlyCloudy: 'partly-cloudy-day.svg',
-                    PartlyCloudyNigh: 'partly-cloudy-night.svg',
-                    Rain: 'rain.svg',
-                    Sleet: 'sleet.svg',
-                    Snow: 'snow.svg',
-                    Thunderstorm: 'thunderstorm.svg',
-                    Tornado: 'tornado.svg',
-                    Wind: 'wind.svg'
-                }
-                // console.log(conditionsIcon[currCondition])
-                return conditionsIcon['currCondition'];
+            // const findIconFunc = (currCondition) => {  // dlaczego funkcje nie działają?
+            //     const conditionsIcon = {
+            //         Sunny: 'clear-day.svg',
+            //         Clear: 'clear-night.svg',
+            //         Cloudy: 'cloudy.svg',
+            //         Fog: 'fog.svg',
+            //         Hail: 'hail.svg',
+            //         PartlyCloudy: 'partly-cloudy-day.svg',
+            //         PartlyCloudyNigh: 'partly-cloudy-night.svg',
+            //         Rain: 'rain.svg',
+            //         Sleet: 'sleet.svg',
+            //         Snow: 'snow.svg',
+            //         Thunderstorm: 'thunderstorm.svg',
+            //         Tornado: 'tornado.svg',
+            //         Wind: 'wind.svg'
+            //     }
+            //     // console.log(conditionsIcon[currCondition])
+            //     return conditionsIcon['currCondition'];
+            // }
 
-            }
+            // TODO: Simplified structured data for choosing weather icon based on Weather conditions
             // Not using currently
-            // Simplified structured data for choosing weather icon based on Weather conditions
-            const findIcon = {
-                Sunny: 'clear-day.svg',
-                Clear: 'clear-night.svg',
-                Cloudy: 'cloudy.svg',
-                Fog: 'fog.svg',
-                Hail: 'hail.svg',
-                PartlyCloudy: 'partly-cloudy-day.svg',
-                PartlyCloudyNigh: 'partly-cloudy-night.svg',
-                Rain: 'rain.svg',
-                Mist: 'rain.svg', // no icon
-                Overcast: 'rain.svg', // no icon
-                Sleet: 'sleet.svg',
-                Snow: 'snow.svg',
-                Thunderstorm: 'thunderstorm.svg',
-                Tornado: 'tornado.svg',
-                Wind: 'wind.svg'
-            }
-            // console.log(forecast);
-
+            // const findIcon = {
+            //     Sunny: 'clear-day.svg',
+            //     Clear: 'clear-night.svg',
+            //     Cloudy: 'cloudy.svg',
+            //     Fog: 'fog.svg',
+            //     Hail: 'hail.svg',
+            //     PartlyCloudy: 'partly-cloudy-day.svg',
+            //     PartlyCloudyNigh: 'partly-cloudy-night.svg',
+            //     Rain: 'rain.svg',
+            //     Mist: 'rain.svg', // no icon
+            //     Overcast: 'rain.svg', // no icon
+            //     Sleet: 'sleet.svg',
+            //     Snow: 'snow.svg',
+            //     Thunderstorm: 'thunderstorm.svg',
+            //     Tornado: 'tornado.svg',
+            //     Wind: 'wind.svg'
+            // }
 
             // Structured data 5-day forecast based on User IP
 
@@ -137,28 +138,24 @@ document.addEventListener('DOMContentLoaded', (e) => {
             currentWeatherTemp[0].innerHTML = currentWeather['temp'];
             // let icon = findIcon[currentWeather['condition']]
             let icon = currentWeather['icon']
-            currentWeatherIcon.src = `http://${icon}`
+            currentWeatherIcon.src = `https://${icon}`
             currentWeatherCity.innerText = currentWeather['city'];
             currentWeatherPressure.innerText = `${currentWeather['pressure']} hPa`;
             currentWeatherHumidity.innerText = `${currentWeather['humidity']}%`;
             currentWeatherWindSpeed.innerText = `${currentWeather['wind']} m/s`;
 
-            // Filling Weather Card with 5-day forecast from forecast5day
+            // Filling Weather Card with 5-day forecast from 'forecast5day'
             // If 3-day forecast instead of 5 is showing that means paid Weather API ended and switched to free plan
             currentForecast.forEach((li, i) => {
                 let day = li.querySelector('.day');
                 day.innerHTML = forecast5day[i].date;
                 let img = li.querySelector('img');
                 let icon = forecast5day[i].icon;
-                img.src = `http://${icon}`; // na module2
+                img.src = `https://${icon}`; // na module2
                 let temperature = li.querySelector('.temperature__value')
                 temperature.innerHTML = forecast5day[i].temp;
                 i++;
             })
-
-            // const newModule = document.querySelector('.module__weather').cloneNode(true);
-            // console.log(newModule);
-            // weatherModule.parentNode.insertBefore(newModule, weatherModule.nextSibling);
 
             // Module Management - Closing Weather Modules
             allWeatherModules.forEach((weatherModule) => {
@@ -178,7 +175,7 @@ document.addEventListener('DOMContentLoaded', (e) => {
                 searchModule.setAttribute('hidden', null);
             });
 
-
+            //TODO Adding a City
             searchFrom.addEventListener('submit', async(e) => {
                 e.preventDefault();
                 let input = searchFrom.querySelector('input');
@@ -196,17 +193,6 @@ document.addEventListener('DOMContentLoaded', (e) => {
                 // getNewCityData();
             })
 
-
-            // Not using this
-            // How to get to current button with 'this'?
-            // closeBtns.forEach((btn) => {
-            //     console.log(closeBtns);
-            //     btn.addEventListener('click', (e) => {
-            //         console.log('close');
-            //         console.log(btn);
-            //         console.log(this);
-            //     });
-            // })
         } catch (err) {
             console.log(err)
         }
