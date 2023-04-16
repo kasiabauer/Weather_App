@@ -56,22 +56,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
             // Structured Current Weather data from Weather API based on User IP or City
-            const getCurrentWeather = async () => {
+            const getCurrentWeather = async (cityResult) => {
                 return {
-                    'city': location['name'],
-                    'condition': current['condition'].text,
-                    'icon': current['condition']['icon'],
-                    'temp': current['temp_c'],
-                    'humidity': current['humidity'],
-                    'pressure': current['pressure_mb'],
-                    'wind': current['wind_kph'],
+                    'city': cityResult.location['name'],
+                    'condition': cityResult.current['condition'].text,
+                    'icon': cityResult.current['condition']['icon'],
+                    'temp': cityResult.current['temp_c'],
+                    'humidity': cityResult.current['humidity'],
+                    'pressure': cityResult.current['pressure_mb'],
+                    'wind': cityResult.current['wind_kph'],
                 };
             }
 
             let currentWeather = await getCurrentWeather(defaultResult);
 
             // Structured Forecast data from Weather API based on User IP or City
-            const get5DayForecast = async () => {
+            const get5DayForecast = async (cityResult) => {
                 const forecast5day = [];
                 forecast['forecastday'].forEach( (forecastDay) => {
                     // console.log(forecastDay['day']['condition'].text)
@@ -185,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // const getNewCityData = async () => {
                 const newCityResult = await getWeather(inputValue);
                 const newCityCurrentWeather = await getCurrentWeather(newCityResult);
+                console.log(newCityCurrentWeather);
                 const newCityForecast = await get5DayForecast(newCityResult);
                 const newModule = document.querySelector('.module__weather').cloneNode(true);
                 // console.log(newModule);
