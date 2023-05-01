@@ -9,10 +9,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const weatherModule = templateWeatherModule.cloneNode(true)
     section.appendChild(weatherModule);
 
+    // Hiding weather module TODO: change the naming so weatherModule is the one showing and template is being hidden
+    weatherModule.setAttribute('hidden', null);
+
     // Secondary Nodes
     const addCityBtn = document.querySelector('#add-city');
     const searchModule = document.querySelector('.module__form');
     // templateWeatherModule.removeAttribute('hidden'); // jak usunąć atrybut hidden?
+
     const currentWeatherTemp = document.getElementsByClassName('temperature__value');
     const currentWeatherIcon = document.querySelector('.weather__icon').querySelector('img')
     const currentWeatherCity = document.querySelector('.city__name')
@@ -147,14 +151,25 @@ document.addEventListener('DOMContentLoaded', () => {
             // Filling Weather Card with 5-day forecast from 'forecast5day'
             // If 3-day forecast instead of 5 is showing that means paid Weather API ended and switched to free plan
             currentForecast.forEach((li, i) => {
-                let day = li.querySelector('.day');
-                day.innerHTML = forecast5day[i].date;
-                let img = li.querySelector('img');
-                let icon = forecast5day[i].icon;
-                img.src = `https://${icon}`; // na module2
-                let temperature = li.querySelector('.temperature__value')
-                temperature.innerHTML = forecast5day[i].temp;
-                i++;
+                try {
+                    let day = li.querySelector('.day');
+                    day.innerHTML = forecast5day[i].date;
+                    let img = li.querySelector('img');
+                    let icon = forecast5day[i].icon;
+                    img.src = `https://${icon}`; // na module2
+                    let temperature = li.querySelector('.temperature__value')
+                    temperature.innerHTML = forecast5day[i].temp;
+                    i++;
+                }
+                catch (err) {
+                    if (i > 2) {
+                        console.log(`API Free Trail expired: Forecast is limited to 3 days.`,
+                        err)
+                    }
+                    else {
+                        console.log(err)
+                    }
+                }
             })
 
             // Module Management - Closing Weather Modules
@@ -185,7 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Fetching Weather Data based on input
                 const newCityResult = await getWeather(inputValue);
                 const newCityCurrentWeather = await getCurrentWeather(newCityResult);
-                const newCityForecast = await get5DayForecast(newCityResult);
+                const newCityCurrentForecast = await get5DayForecast(newCityResult);
+
 
 
                 // For testing purposes - reviewing inputValue & getWeather API data for new City
@@ -213,7 +229,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 newCityHumidity.innerText = `${newCityCurrentWeather['humidity']}%`;
                 newCityWindSpeed.innerText = `${newCityCurrentWeather['wind']} m/s`;
 
-                //TODO Filling New Weather Module with forecast data (newCityForecast)
+                // Filling New Weather Module with forecast data (newCityForecast)
+                const newCityForecast = newModule.querySelector('.weather__forecast').querySelectorAll('li');
+
+                newCityForecast.forEach((li, i) => {
+                    try {
+                        let day = li.querySelector('.day');
+                        day.innerHTML = forecast5day[i].date;
+                        let img = li.querySelector('img');
+                        let icon = newCityCurrentForecast[i].icon;
+                        img.src = `https://${icon}`; // na module2
+                        let temperature = li.querySelector('.temperature__value')
+                        temperature.innerHTML = newCityCurrentForecast[i].temp;
+                        i++;
+                    }
+                    catch (err) {
+                        if (i > 2) {
+                            console.log(`API Free Trail expired: Forecast is limited to 3 days.`,
+                                err)
+                        }
+                        else {
+                            console.log(err)
+                        }
+                    }
+                })
+
+                // Closing new city weather modules
+                console.log(newModule)
+                const closeModuleBtn = newModule.querySelector('.btn--close');
+                closeModuleBtn.addEventListener('click', () => {
+                    newModule.remove();
+                })
+
 
                 // Adding New Weather Module to HTML
                 weatherModule.parentNode.insertBefore(newModule, weatherModule.nextSibling);
@@ -226,8 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             console.log(err)
         }
-
-
 }
 getIpAsync2();
 })
