@@ -17,7 +17,7 @@
 
 <section id="app" class="container">
 
-  <!-- Moduł wyszukiwarki - domyślnie ukryty -->
+  <!-- Search Module -->
   <div class="module module__form" hidden>
     <button class="btn btn--icon btn--close"><i class="material-icons">close</i></button>
     <h2>Znajdź miasto</h2>
@@ -29,12 +29,9 @@
     <div class="search-error"></div>
   </div>
 
-  <!--
-     Moduł pogody
-     Poniższy kod możecie potraktować jako template do kolejnych modułów
-     Możecie go sklonować używając metody cloneNode(true), i powstawiać odpowiednie wartości z aktualnego miasta.
-  -->
+  <!-- Weather Module -->
   <div class="module module__weather">
+
     <button class="btn btn--icon btn--close"><i class="material-icons">close</i></button>
 
     <div class="weather">
@@ -81,10 +78,10 @@
       </ul>
     </div>
   </div>
-
   <div class="loading">
     <div class="dual-ring"></div>
   </div>
+
 </section>
 
 <script src="build/out.js"></script>

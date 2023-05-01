@@ -1,4 +1,7 @@
 
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // Main Nodes
@@ -15,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Secondary Nodes
     const addCityBtn = document.querySelector('#add-city');
     const searchModule = document.querySelector('.module__form');
-    // templateWeatherModule.removeAttribute('hidden'); // jak usunąć atrybut hidden?
 
     const currentWeatherTemp = document.getElementsByClassName('temperature__value');
     const currentWeatherIcon = document.querySelector('.weather__icon').querySelector('img')
@@ -27,7 +29,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const allWeatherModules = document.querySelectorAll('.module__weather')
     const closeSearchBtn = searchModule.querySelector('.btn--close');
     const searchFrom = document.querySelector('.find-city');
+    const loading = document.querySelector('.loading')
 
+    // Loading dual-ring before API fetch data
+    loading.setAttribute('style', 'display: block');
+
+    // Function get the weekday from a Date
+    // Accepts a Date object or date string that is recognized by the Date.parse() method
+    function getDayOfWeek(date) {
+        const dayOfWeek = new Date(date).getDay();
+        return isNaN(dayOfWeek) ? null :
+            ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'][dayOfWeek];
+    }
 
     // Get User IP  & Weather Data
     const getIpAsync2 = async () => {
@@ -55,9 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // const myResult = await getWeather('wroclaw');
             // console.log(myResult['location'])
 
-            //// For Testing purposes - reviewing getWeather API data - forecast
+            // // For Testing purposes - reviewing getWeather API data - forecast
             // console.log(forecast);
 
+            loading.setAttribute('style', 'display: none');
 
             // Structured Current Weather data from Weather API based on User IP or City
             const getCurrentWeather = async (cityResult) => {
@@ -80,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 cityResult.forecast['forecastday'].forEach( (forecastDay) => {
                     // console.log(forecastDay['day']['condition'].text)
                     forecast5day.push({
-                        date: forecastDay['date'],
+                        date: getDayOfWeek(forecastDay['date']),
                         temp: forecastDay['day']['avgtemp_c'],
                         condition: forecastDay['day']['condition'].text,
                         icon: forecastDay['day']['condition']['icon']
@@ -90,9 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const forecast5day = await get5DayForecast(defaultResult);
-
-
-
 
             // TODO: Function for choosing weather icon based on Weather conditions
             // Now working properly
@@ -149,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentWeatherWindSpeed.innerText = `${currentWeather['wind']} m/s`;
 
             // Filling Weather Card with 5-day forecast from 'forecast5day'
-            // If 3-day forecast instead of 5 is showing that means paid Weather API ended and switched to free plan
+            // If 3-day forecast instead of 5-day is showing that means paid Weather API ended and switched to free plan
             currentForecast.forEach((li, i) => {
                 try {
                     let day = li.querySelector('.day');
@@ -228,6 +239,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 newCityPressure.innerText = `${newCityCurrentWeather['pressure']} hPa`;
                 newCityHumidity.innerText = `${newCityCurrentWeather['humidity']}%`;
                 newCityWindSpeed.innerText = `${newCityCurrentWeather['wind']} m/s`;
+
+                //TODO: Write a function for filling current weather data so it works with both default weather module
+                // & newly added. Do the same for forecast.
 
                 // Filling New Weather Module with forecast data (newCityForecast)
                 const newCityForecast = newModule.querySelector('.weather__forecast').querySelectorAll('li');
