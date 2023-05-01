@@ -1,7 +1,3 @@
-
-
-
-
 document.addEventListener('DOMContentLoaded', () => {
 
     // Main Nodes
@@ -12,29 +8,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const weatherModule = templateWeatherModule.cloneNode(true)
     section.appendChild(weatherModule);
 
-    // Hiding weather module TODO: change the naming so weatherModule is the one showing and template is being hidden
-    weatherModule.setAttribute('hidden', null);
+    // Hiding template weather module
+    templateWeatherModule.setAttribute('hidden', null);
 
     // Secondary Nodes
     const addCityBtn = document.querySelector('#add-city');
     const searchModule = document.querySelector('.module__form');
 
-    const currentWeatherTemp = document.getElementsByClassName('temperature__value');
-    const currentWeatherIcon = document.querySelector('.weather__icon').querySelector('img')
-    const currentWeatherCity = document.querySelector('.city__name')
-    const currentWeatherPressure = document.querySelector('.weather__details').querySelector('.pressure__value');
-    const currentWeatherHumidity = document.querySelector('.weather__details').querySelector('.humidity__value');
-    const currentWeatherWindSpeed = document.querySelector('.weather__details').querySelector('.wind-speed__value');
-    const currentForecast = document.querySelector('.weather__forecast').querySelectorAll('li');
+    const currentWeatherTemp = weatherModule.getElementsByClassName('temperature__value');
+    const currentWeatherIcon = weatherModule.querySelector('.weather__icon').querySelector('img')
+    const currentWeatherCity = weatherModule.querySelector('.city__name')
+    const currentWeatherPressure = weatherModule.querySelector('.weather__details').querySelector('.pressure__value');
+    const currentWeatherHumidity = weatherModule.querySelector('.weather__details').querySelector('.humidity__value');
+    const currentWeatherWindSpeed = weatherModule.querySelector('.weather__details').querySelector('.wind-speed__value');
+    const currentForecast = weatherModule.querySelector('.weather__forecast').querySelectorAll('li');
     const allWeatherModules = document.querySelectorAll('.module__weather')
     const closeSearchBtn = searchModule.querySelector('.btn--close');
     const searchFrom = document.querySelector('.find-city');
     const loading = document.querySelector('.loading')
 
-    // Loading dual-ring before API fetch data
+    // Showing loading indicator (dual-ring) before API fetch data
     loading.setAttribute('style', 'display: block');
+    loading.children[0].style.padding = '5% 50%'
 
-    // Function get the weekday from a Date
+    // Util function: Get weekday from date
     // Accepts a Date object or date string that is recognized by the Date.parse() method
     function getDayOfWeek(date) {
         const dayOfWeek = new Date(date).getDay();
@@ -71,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // // For Testing purposes - reviewing getWeather API data - forecast
             // console.log(forecast);
 
+            // Hiding loading indicator (dual-ring) after API fetch data
             loading.setAttribute('style', 'display: none');
 
             // Structured Current Weather data from Weather API based on User IP or City
@@ -160,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
             currentWeatherWindSpeed.innerText = `${currentWeather['wind']} m/s`;
 
             // Filling Weather Card with 5-day forecast from 'forecast5day'
-            // If 3-day forecast instead of 5-day is showing that means paid Weather API ended and switched to free plan
             currentForecast.forEach((li, i) => {
                 try {
                     let day = li.querySelector('.day');
@@ -173,9 +170,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     i++;
                 }
                 catch (err) {
-                    if (i > 2) {
+                    if (i === 3) {
                         console.log(`API Free Trail expired: Forecast is limited to 3 days.`,
                         err)
+                    }
+                    else if (i > 3) {
+                        // If 3-day forecast instead of 5-day is showing that means paid Weather API ended and
+                        // switched to free plan.
                     }
                     else {
                         console.log(err)
@@ -201,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 searchModule.setAttribute('hidden', null);
             });
 
-            //TODO Adding a City
+            // Adding a City
             searchFrom.addEventListener('submit', async(e) => {
                 e.preventDefault();
                 let input = searchFrom.querySelector('input');
@@ -213,8 +214,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newCityCurrentWeather = await getCurrentWeather(newCityResult);
                 const newCityCurrentForecast = await get5DayForecast(newCityResult);
 
-
-
                 // For testing purposes - reviewing inputValue & getWeather API data for new City
                 // console.log(inputValue);
                 // console.log(newCityCurrentWeather);
@@ -222,7 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // console.log(newModule);
 
                 // Creating new Weather Module for city from input
-                const newModule = document.querySelector('.module__weather').cloneNode(true);
+                const newModule = templateWeatherModule.cloneNode(true);
+                newModule.removeAttribute('hidden');
 
                 let newCityTemp = newModule.getElementsByClassName('temperature__value');
                 let newCityIcon = newModule.querySelector('.weather__icon').querySelector('img')
@@ -269,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
 
                 // Closing new city weather modules
-                console.log(newModule)
                 const closeModuleBtn = newModule.querySelector('.btn--close');
                 closeModuleBtn.addEventListener('click', () => {
                     newModule.remove();
@@ -277,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
                 // Adding New Weather Module to HTML
-                weatherModule.parentNode.insertBefore(newModule, weatherModule.nextSibling);
+                section.insertBefore(newModule, section.children[1]);
 
                 // Clearing inputValue after adding new City
                 input.value = '';
