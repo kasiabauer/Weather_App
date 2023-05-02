@@ -8,9 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const weatherModule = templateWeatherModule.cloneNode(true)
     section.appendChild(weatherModule);
 
-    // Hiding template weather module
-    templateWeatherModule.setAttribute('hidden', null);
-
     // Secondary Nodes
     const addCityBtn = document.querySelector('#add-city');
     const searchModule = document.querySelector('.module__form');
@@ -101,9 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 return forecast5day;
             }
 
+            // Showing weather module with fully loaded weather data
+            weatherModule.removeAttribute('hidden');
+
             const forecast5day = await get5DayForecast(defaultResult);
 
-            // TODO: Function for choosing weather icon based on Weather conditions
+            // TODO: Function for choosing custom weather icon based on Weather conditions
             // Now working properly
             // const findIconFunc = (currCondition) => {  // dlaczego funkcje nie działają?
             //     const conditionsIcon = {
@@ -282,6 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 input.value = '';
 
             })
+            //TODO: Return Error message for 'Bukareszt' or 'Sforne gacie'
 
         } catch (err) {
             console.log(err)
